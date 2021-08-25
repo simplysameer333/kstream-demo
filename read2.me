@@ -1,0 +1,72 @@
+Streaming Data Using Kafka Streams to Count Words
+Introduction
+In this hands-on lab, we use the WordCount demo application that comes with the Kafka binaries. This application is already built, so we won't create the application from scratch. We need to create an input topic, an output topic, and then use the WordCount Streaming Application to count the number of words in the input stream using the Kafka console consumer. We do this by passing in the apprpriate properties to the console consumer to format, serialize, and deserialize the data into the correct output for viewing in the console. When we have an output of the count of each word in the console, we've successfully completed this lab.
+
+Solution
+Begin by logging in to the lab server using the credentials provided on the hands-on lab page.
+
+ssh cloud_user@PUBLIC_IP_ADDRESS
+Set Up the Environment
+Transfer to the content-kafka-deep-dive directory.
+
+cd content-kafka-deep-dive/
+Build the Kafka Cluster
+
+docker-compose up -d --build
+Return to your home directory and expand the Kafka file.
+
+cd ..
+
+tar -xvf kafka_2.12-2.2.0.tgz
+Rename the new directory.
+
+mv kafka_2.12-2.2.0 kafka
+Install Java.
+
+sudo apt install default-jdk
+Verify the version.
+
+java -version
+Write to a Kafka Stream and Open a Kafka Console Consumer
+Transfer to the kafka directory.
+
+cd kafka/
+Create an input topic.
+
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic streams-plaintext-input
+Create an output topic.
+
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic streams-wordcount-output
+Open a Kafka console producer.
+
+bin/kafka-console-producer.sh --broker-list localhost:9092 --topic streams-plaintext-input
+Enter the following messages.
+
+kafka streams is great
+kafka processes messages in real time
+kafka helps real information streams
+Use Ctrl-C to exit the producer.
+
+Open a Kafka console consumer.
+
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 \
+    --topic streams-wordcount-output \
+    --from-beginning \
+    --formatter kafka.tools.DefaultMessageFormatter \
+    --property print.key=true \
+    --property print.value=true \
+    --property key.deserializer=org.apache.kafka.common.serialization.StringDeserializer \
+    --property value.deserializer=org.apache.kafka.common.serialization.LongDeserializer
+Run the WordCountDemo on the Kafka Stream
+Open a new terminal to the lab server.
+
+ssh cloud_user@PUBLIC_IP_ADDRESS
+Move the kafka directory and run the WordCount application.
+
+cd kafka
+
+bin/kafka-run-class.sh org.apache.kafka.streams.examples.wordcount.WordCountDemo
+Switch back to the terminal with the open Kafka consumer and verify the word counts.
+
+Conclusion
+Congratulations — you've completed this hands-on lab!
